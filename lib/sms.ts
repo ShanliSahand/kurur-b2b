@@ -4,7 +4,7 @@ export async function sendOtpSms(phone: string, code: string) {
     const sender = process.env.SMS_SENDER_NUMBER || "2000660110";
     
     // If we are in development and don't have a real key, just log it
-    if (!apiKey || apiKey === "your_api_key_here") {
+    if (!apiKey || apiKey === "6B414562516A5530533742453162544A666A373162757973755A543843334A444B47466E5163376D542B453D") {
       console.log(`\n🧪 [DEV MODE] SMS to ${phone}: Your code is ${code}\n`);
       return { success: true };
     }
