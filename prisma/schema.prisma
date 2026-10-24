@@ -1,0 +1,216 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============ ENUMS ============
+
+enum UserRole {
+  BUYER
+  SELLER
+  BOTH
+}
+
+enum SubscriptionType {
+  BASIC
+  SILVER
+  GOLD
+  PLATINUM
+}
+
+enum RequestStatus {
+  OPEN
+  CLOSED
+  CANCELLED
+}
+
+// ============ LOCATION MODELS ============
+
+model Country {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  provinces Province[]
+  users     User[]
+  requests  Request[]
+  products  Product[]
+}
+
+model Province {
+  id        String    @id @default(cuid())
+  name      String
+  countryId String
+  country   Country   @relation(fields: [countryId], references: [id])
+  cities    City[]
+  users     User[]
+  requests  Request[]
+  products  Product[]
+
+  @@unique([name, countryId])
+}
+
+model City {
+  id         String    @id @default(cuid())
+  name       String
+  provinceId String
+  province   Province  @relation(fields: [provinceId], references: [id])
+  users      User[]
+  requests   Request[]
+  products   Product[]
+
+  @@unique([name, provinceId])
+}
+
+// ============ MAIN MODELS ============
+
+model User {
+  id              String   @id @default(cuid())
+  phone           String   @unique
+  passwordHash    String?
+  fullName        String?
+  companyName     String?
+  role            UserRole @default(BUYER)
+  subscriptionType SubscriptionType @default(BASIC)
+  subscriptionStart DateTime?
+  subscriptionEnd   DateTime?
+  monthlyContacts  Int              @default(0)
+  email           String?  @unique
+  
+  // Contact Info
+  fixNumber       String?
+  address         String?
+  whatsapp        String?
+  wechat          String?
+  telegram        String?
+  photoUrl        String?
+  
+  // Relations to Location
+  countryId       String?
+  country         Country? @relation(fields: [countryId], references: [id])
+  provinceId      String?
+  province        Province? @relation(fields: [provinceId], references: [id])
+  cityId          String?
+  city            City?    @relation(fields: [cityId], references: [id])
+
+  // SMS Auth
+  otpCode         String?
+  otpExpiresAt    DateTime?
+  isPhoneVerified Boolean  @default(false)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  requests        Request[]
+  products        Product[]
+
+  loginHistory    LoginHistory[]   
+  transactions    Transaction[]   
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  requests  Request[]
+  products  Product[]
+}
+
+model Request {
+  id           String        @id @default(cuid())
+  title        String
+  description  String?
+  
+  categoryId   String
+  category     Category      @relation(fields: [categoryId], references: [id])
+
+  countryId    String?
+  country      Country?      @relation(fields: [countryId], references: [id])
+  provinceId   String
+  province     Province      @relation(fields: [provinceId], references: [id])
+  cityId       String
+  city         City          @relation(fields: [cityId], references: [id])
+
+  quantity     String
+  unit         String?
+  budget       String?
+  deliveryTime String?
+  status       RequestStatus @default(OPEN)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  buyerId      String
+  buyer        User          @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+
+  @@index([categoryId])
+  @@index([provinceId, cityId])
+}
+
+model Product {
+  id           String        @id @default(cuid())
+  title        String
+  description  String?
+  price        String?
+  minOrder     String?       
+  dataSheetUrl String?       
+
+  categoryId   String
+  category     Category      @relation(fields: [categoryId], references: [id])
+
+  countryId    String?
+  country      Country?      @relation(fields: [countryId], references: [id])
+  provinceId   String
+  province     Province      @relation(fields: [provinceId], references: [id])
+  cityId       String
+  city         City          @relation(fields: [cityId], references: [id])
+
+  status       RequestStatus @default(OPEN)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  sellerId     String
+  seller       User          @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+
+  images       String[]
+
+  @@index([categoryId])
+  @@index([provinceId, cityId])
+}
+
+model Plan {
+  id          String @id @default(cuid())
+  type        SubscriptionType @unique
+  monthlyPrice Int
+}
+
+model LoginHistory {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ipAddress String?
+  userAgent String?
+  loginAt   DateTime @default(now())
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount      Int
+  planType    String
+  months      Int
+  referenceId String
+  status      String   @default("SUCCESS")
+  createdAt   DateTime @default(now())
+}
+
+model Admin {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  fullName     String
+  role         String   @default("SUPER_ADMIN")
+  createdAt    DateTime @default(now())
+}

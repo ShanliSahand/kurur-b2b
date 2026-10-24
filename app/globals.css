@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+:root {
+  --background: #fafafa;
+  --foreground: #0f172a;
+}
+
+@theme inline {
+  /* Base */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  /* Brand — Kurur Teal */
+  --color-brand-50:  #f0fdfa;
+  --color-brand-100: #ccfbf1;
+  --color-brand-200: #99f6e4;
+  --color-brand-300: #5eead4;
+  --color-brand-400: #2dd4bf;
+  --color-brand-500: #14b8a6;
+  --color-brand-600: #0d9488;
+  --color-brand-700: #0f766e;
+  --color-brand-800: #115e59;
+  --color-brand-900: #134e4a;
+
+  /* CTA — Coral */
+  --color-accent-50:  #fef2f2;
+  --color-accent-100: #fee2e2;
+  --color-accent-400: #f87171;
+  --color-accent-500: #ef4444;
+  --color-accent-600: #dc2626;
+
+  /* Neutrals */
+  --color-muted: #64748b;
+  --color-border: #e2e8f0;
+
+  /* Fonts */
+  --font-sans: "Vazirmatn", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, monospace;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  min-height: 100vh;
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  /* Set default body text to Medium (500) for Persian readability */
+  font-weight: 500; 
+  background: linear-gradient(135deg, #f0fdfa 0%, #ffffff 50%, #fef2f2 100%);
+  background-attachment: fixed;
+}
+
+/* Ensure headings and explicit bold tags are strong */
+h1, h2, h3, h4, h5, h6, b, strong, .font-bold {
+  font-weight: 700 !important;
+}
+
+/* Ensure small/light text is still readable */
+.text-xs, .text-sm, .text-\[10px\], .text-\[11px\] {
+  font-weight: 600 !important;
+}
