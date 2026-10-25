@@ -1,3 +1,6 @@
 node_modules
-.git
+.next
+app/generated
 .env
+public/uploads
+.git
